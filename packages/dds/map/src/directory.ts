@@ -40,6 +40,8 @@ import {
 } from "./localValues";
 import { pkgVersion } from "./packageVersion";
 
+const posixPathSeparator = "/";
+
 // path-browserify only supports posix functionality but doesn't have a path.posix to enforce it.  But we need to
 // enforce posix when using the normal node module on Windows (otherwise it will use path.win32).  Also including an
 // assert here to help protect in case path-browserify changes in the future, because we only want posix path
@@ -259,8 +261,8 @@ function serializeDirectory(root: SubDirectory): ITree {
             if (value.value && value.value.length >= MinValueSizeSeparateSnapshotBlob) {
                 const extraContent: IDirectoryDataObject = {};
                 let largeContent = extraContent;
-                if (currentSubDir.absolutePath !== posix.sep) {
-                    for (const dir of currentSubDir.absolutePath.substr(1).split(posix.sep)) {
+                if (currentSubDir.absolutePath !== posixPathSeparator) {
+                    for (const dir of currentSubDir.absolutePath.substr(1).split(posixPathSeparator)) {
                         const subDataObject: IDirectoryDataObject = {};
                         largeContent.subdirectories = { [dir]: subDataObject };
                         largeContent = subDataObject;
@@ -409,7 +411,7 @@ export class SharedDirectory extends SharedObject<ISharedDirectoryEvents> implem
     /**
      * Root of the SharedDirectory, most operations on the SharedDirectory itself act on the root.
      */
-    private readonly root: SubDirectory = new SubDirectory(this, this.runtime, posix.sep);
+    private readonly root: SubDirectory = new SubDirectory(this, this.runtime, posixPathSeparator);
 
     /**
      * Mapping of op types to message handlers.
@@ -570,12 +572,12 @@ export class SharedDirectory extends SharedObject<ISharedDirectoryEvents> implem
      */
     public getWorkingDirectory(relativePath: string): IDirectory {
         const absolutePath = this.makeAbsolute(relativePath);
-        if (absolutePath === posix.sep) {
+        if (absolutePath === posixPathSeparator) {
             return this.root;
         }
 
         let currentSubDir = this.root;
-        const subdirs = absolutePath.substr(1).split(posix.sep);
+        const subdirs = absolutePath.substr(1).split(posixPathSeparator);
         for (const subdir of subdirs) {
             currentSubDir = currentSubDir.getSubDirectory(subdir) as SubDirectory;
             if (!currentSubDir) {
@@ -748,7 +750,7 @@ export class SharedDirectory extends SharedObject<ISharedDirectoryEvents> implem
      * @param relativePath - The path to convert
      */
     private makeAbsolute(relativePath: string): string {
-        return posix.resolve(posix.sep, relativePath);
+        return posix.resolve(posixPathSeparator, relativePath);
     }
 
     /**
@@ -1054,8 +1056,8 @@ class SubDirectory implements IDirectory {
             throw new Error("SubDirectory name may not be undefined or null");
         }
 
-        if (subdirName.includes(posix.sep)) {
-            throw new Error(`SubDirectory name may not contain ${posix.sep}`);
+        if (subdirName.includes(posixPathSeparator)) {
+            throw new Error(`SubDirectory name may not contain ${posixPathSeparator}`);
         }
 
         // Create the sub directory locally first.
