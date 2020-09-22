@@ -39,8 +39,7 @@ import {
     valueTypes,
 } from "./localValues";
 import { pkgVersion } from "./packageVersion";
-
-const posixPathSeparator = "/";
+import { posixPathSeparator } from "./path";
 
 // path-browserify only supports posix functionality but doesn't have a path.posix to enforce it.  But we need to
 // enforce posix when using the normal node module on Windows (otherwise it will use path.win32).  Also including an
