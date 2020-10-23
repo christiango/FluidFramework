@@ -6,6 +6,7 @@
 const fluidRoute = require("@fluidframework/webpack-fluid-loader");
 const path = require("path");
 const merge = require("webpack-merge");
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = env => {
     const isProduction = env && env.production;
@@ -16,6 +17,10 @@ module.exports = env => {
         },
         resolve: {
             extensions: [".ts", ".tsx", ".js"],
+            alias: {
+                "assert": path.resolve(__dirname, 'assert.js')
+            }
+
         },
         module: {
             rules: [{
@@ -35,6 +40,14 @@ module.exports = env => {
             globalObject: "(typeof self !== 'undefined' ? self : this)",
             libraryTarget: "umd"
         },
+        plugins: [
+            new BundleAnalyzerPlugin({
+            analyzerMode: 'static',
+            reportFilename: path.resolve(process.cwd(), 'bundleAnalysis/report.html'),
+            openAnalyzer: false,
+            generateStatsFile: false,
+            statsFilename: path.resolve(process.cwd(), 'bundleAnalysis/report.json')
+            })],
         devServer: {
             headers: {
                 'Access-Control-Allow-Origin': '*'
